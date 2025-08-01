@@ -87,7 +87,7 @@ func calcMed(numbers []int) int {
 	sort.Ints(numbers)
 
 	if length%2 == 0 {
-		return (numbers[length/2-1] + numbers[length]) / 2
+		return (numbers[length/2-1] + numbers[length/2]) / 2
 	} else {
 		return numbers[length/2]
 	}
