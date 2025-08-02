@@ -80,26 +80,28 @@ func getCurrencyHint(initial string) string {
 	return "(EUR, USD)"
 }
 
+type CurrencyRate = map[string]float64
+
 func calculateTarget(amount float64, initialCurrency string, targetCurrency string) float64 {
-	const USD_EUR = 0.88
-	const USD_RUB = 81.25
+	const USD_EUR = 0.86
+	const USD_RUB = 79.89
 
-	if initialCurrency == "USD" {
-		if targetCurrency == "EUR" {
-			return amount * USD_EUR
-		}
-		return amount * USD_RUB
+	currencyRatesMap := map[string]CurrencyRate{
+		"USD": {
+			"EUR": USD_EUR,
+			"RUB": USD_RUB,
+		},
+		"EUR": {
+			"USD": 1 / USD_EUR,
+			"RUB": 1 / USD_EUR * USD_RUB,
+		},
+		"RUB": {
+			"EUR": 1 / USD_RUB * USD_EUR,
+			"USD": 1 / USD_RUB,
+		},
 	}
 
-	if initialCurrency == "EUR" {
-		if targetCurrency == "USD" {
-			return amount / USD_EUR
-		}
-		return amount / USD_EUR * USD_RUB
-	}
+	rate := currencyRatesMap[initialCurrency][targetCurrency]
 
-	if targetCurrency == "USD" {
-		return amount / USD_RUB
-	}
-	return amount / USD_RUB * USD_EUR
+	return amount * rate
 }
