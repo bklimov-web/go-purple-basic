@@ -23,8 +23,14 @@ func newBin(name string, private bool) *Bin {
 	}
 }
 
+func newBinList() *BinList {
+	return &BinList{}
+}
+
 func main() {
 	bin := newBin("new bin", false)
+	binList := newBinList()
 
 	fmt.Print(bin)
+	fmt.Print(binList)
 }
