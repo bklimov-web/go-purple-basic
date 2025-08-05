@@ -7,27 +7,34 @@ import (
 	"strings"
 )
 
-// func ReadFile() {
+func ReadFile(name string) []byte {
+	content, err := os.ReadFile(name)
 
-// }
+	if err != nil {
+		fmt.Print("Не удалось прочитать файл")
+		return nil
+	}
 
-func ReadJson(name string) {
+	return content
+}
+
+func ReadJson(name string) []byte {
 	splitName := strings.Split(name, ".")
 	extension := splitName[len(splitName)-1]
 
 	if extension != "json" {
 		fmt.Print("Это не json файл")
-		return
+		return nil
 	}
 
 	content, err := os.ReadFile(name)
 
 	if err != nil {
 		fmt.Print("Не удалось прочитать файл")
-		return
+		return nil
 	}
 
-	fmt.Println(content)
+	return content
 }
 
 func WriteFile(name string, content []byte) error {
