@@ -1,36 +1,21 @@
 package bin
 
 import (
-	"fmt"
 	"time"
 )
 
 type Bin struct {
-	id        string
-	private   bool
-	createdAt time.Time
-	name      string
+	Id        string    `json:"id"`
+	Private   bool      `json:"private"`
+	CreatedAt time.Time `json:"createAt"`
+	Name      string    `json:"name"`
 }
-
-type BinList []Bin
 
 func NewBin(name string, private bool) *Bin {
 	return &Bin{
-		id:        "123",
-		private:   private,
-		createdAt: time.Now(),
-		name:      name,
+		Id:        "123",
+		Private:   private,
+		CreatedAt: time.Now(),
+		Name:      name,
 	}
-}
-
-func NewBinList() *BinList {
-	return &BinList{}
-}
-
-func main() {
-	bin := NewBin("new bin", false)
-	binList := NewBinList()
-
-	fmt.Print(bin)
-	fmt.Print(binList)
 }
