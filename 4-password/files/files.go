@@ -7,15 +7,40 @@ import (
 	"strings"
 )
 
-func ReadFile(name string) []byte {
-	content, err := os.ReadFile(name)
+type JsonDb struct {
+	filename string
+}
+
+func NewJsonDb(name string) *JsonDb {
+	return &JsonDb{
+		filename: name,
+	}
+}
+
+func (db *JsonDb) Write(content []byte) {
+	file, err := os.Create(db.filename)
 
 	if err != nil {
-		fmt.Print("Не удалось прочитать файл")
-		return nil
+		fmt.Print("Не удалось создать файл")
 	}
 
-	return content
+	defer file.Close()
+
+	_, err = file.Write(content)
+
+	if err != nil {
+		fmt.Print("Не удалось записать файл")
+	}
+}
+
+func (db *JsonDb) Read() ([]byte, error) {
+	content, err := os.ReadFile(db.filename)
+
+	if err != nil {
+		return nil, errors.New("FILE_READ_ERROR")
+	}
+
+	return content, nil
 }
 
 func ReadJson(name string) []byte {
@@ -35,24 +60,4 @@ func ReadJson(name string) []byte {
 	}
 
 	return content
-}
-
-func WriteFile(name string, content []byte) error {
-	file, err := os.Create(name)
-
-	if err != nil {
-		fmt.Print("Не удалось создать файл")
-		return errors.New("FILE_CREATE_ERROR")
-	}
-
-	defer file.Close()
-
-	_, err = file.Write(content)
-
-	if err != nil {
-		fmt.Print("Не удалось записать файл")
-		return errors.New("FILE_WRITE_ERROR")
-	}
-
-	return nil
 }

@@ -2,30 +2,47 @@ package storage
 
 import (
 	"demo/password/bin"
-	"demo/password/files"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 )
+
+type Db interface {
+	Read() ([]byte, error)
+	Write([]byte)
+}
 
 type BinStorage struct {
 	BinList   []bin.Bin `json:"binList"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-func ReadBinStorage() {
-	files.ReadJson("bins.json")
+type BinStorageWithDb struct {
+	BinStorage
+	db Db
 }
 
-func GetBinStorage() *BinStorage {
-	binStorageContent, err := os.ReadFile("bins.json")
+func (storage *BinStorageWithDb) ReadBinStorage() ([]byte, error) {
+	content, err := storage.db.Read()
 
 	if err != nil {
-		return &BinStorage{
-			BinList:   []bin.Bin{},
-			UpdatedAt: time.Now(),
+		return nil, errors.New("READ_ERROR")
+	}
+
+	return content, nil
+}
+
+func GetBinStorage(db Db) *BinStorageWithDb {
+	binStorageContent, err := db.Read()
+
+	if err != nil {
+		return &BinStorageWithDb{
+			BinStorage: BinStorage{
+				BinList:   []bin.Bin{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
 		}
 	}
 
@@ -34,31 +51,37 @@ func GetBinStorage() *BinStorage {
 
 	if err != nil {
 		fmt.Println("Не удалось расшифровать файл, создан новый")
-		return &BinStorage{
-			BinList:   []bin.Bin{},
-			UpdatedAt: time.Now(),
+		return &BinStorageWithDb{
+			BinStorage: BinStorage{
+				BinList:   []bin.Bin{},
+				UpdatedAt: time.Now(),
+			},
+			db: db,
 		}
 	}
 
-	return &binStorage
+	return &BinStorageWithDb{
+		BinStorage: binStorage,
+		db:         db,
+	}
 }
 
-func (storage *BinStorage) writeStorage() error {
+func (storage *BinStorageWithDb) writeStorage() error {
 	storage.UpdatedAt = time.Now()
 
-	storageJson, err := json.Marshal(storage)
+	storageJson, err := json.Marshal(storage.BinStorage)
 
 	if err != nil {
 		fmt.Print("Не удалось преобразовать")
 		return errors.New("JSON_PARSE_ERROR")
 	}
 
-	files.WriteFile("bins.json", storageJson)
+	storage.db.Write(storageJson)
 
 	return nil
 }
 
-func (storage *BinStorage) AddBin(bin *bin.Bin) {
+func (storage *BinStorageWithDb) AddBin(bin *bin.Bin) {
 	storage.BinList = append(storage.BinList, *bin)
 
 	err := storage.writeStorage()
