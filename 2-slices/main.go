@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+var operationsMap = map[string]func([]int) int{
+	"SUM": calcSum,
+	"AVG": calcAvg,
+	"MED": calcMed,
+}
+
 func main() {
 	var numbersStr string
 
@@ -22,13 +28,14 @@ func main() {
 		fmt.Print(err)
 	}
 
-	if operation == "SUM" {
-		fmt.Print(calcSum(numbers))
-	} else if operation == "AVG" {
-		fmt.Print(calcAvg(numbers))
-	} else {
-		fmt.Print(calcMed(numbers))
+	operationFn := operationsMap[operation]
+
+	if operationFn == nil {
+		fmt.Print("Неверная операция")
+		return
 	}
+
+	fmt.Print(operationFn(numbers))
 }
 
 func getNumbers(numbersStr string) ([]int, error) {
